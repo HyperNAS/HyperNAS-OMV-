@@ -8,7 +8,7 @@ RUN dpkg --add-architecture i386 \
     && apt-get install -y libc6:i386 libstdc++6:i386 \
     && apt-get install -y zlib1g:i386 \
     && apt-get install -y locales \
-    git-core build-essential \
+    git-core build-essential bc \
     libssl-dev libncurses5-dev unzip gawk zlib1g-dev \
     subversion curl wget file python gettext \
     libxml-parser-perl zip kmod cpio sudo bash-completion \
