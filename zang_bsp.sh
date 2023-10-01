@@ -44,12 +44,24 @@ function make_kernel()
 	cp -rf rtd1296-kernel/arch/arm64/boot/dts/realtek/rtd129x/*.dtb out/kernel
 }
 
+function kernel_menuconfig()
+{
+	sudo docker run -it --rm --user sdkuser -v $BSP_PATH:/home/sdkuser \
+                -e PATH=$CON_PATH \
+                zang_1296:16.04 bash -c "cd $KERNEL_PATH && \
+                make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 menuconfig -j$((PROCESSOR*2))"
+	cp rtd1296-kernel/.config rtd1296-kernel/arch/arm64/configs
+}
+
 case "$1" in
   "init")
 	  init
     ;;
   "kernel")
 	  make_kernel
+    ;;
+  "kernel_menuconfig")
+  	  kernel_menuconfig	
     ;;
   *)
     echo "未知选项: $1"
