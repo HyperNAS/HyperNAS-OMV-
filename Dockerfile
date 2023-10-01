@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-RUN sed -i 's/archive.ubuntu/tw.archive.ubuntu/g' /etc/apt/sources.list
+RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list
 
 # Setup required packages for runner and OpenWRT compilation
 RUN dpkg --add-architecture i386 \
