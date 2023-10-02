@@ -61,7 +61,7 @@ function kernel_menuconfig()
                 -e PATH=$CON_PATH \
                 zang_1296:16.04 bash -c "cd $KERNEL_PATH && \
                 make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 menuconfig -j$((PROCESSOR*2))"
-	cp rtd1296-kernel/.config rtd1296-kernel/arch/arm64/configs
+	cp rtd1296-kernel/.config rtd1296-kernel/arch/arm64/configs/zang_nas_defconfig
 }
 
 function clean()
