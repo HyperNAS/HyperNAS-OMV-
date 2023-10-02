@@ -4,6 +4,7 @@ BSP_PATH=$PWD
 BASE_PATH=$PATH
 TOOLCHAINS_PATH=/home/sdkuser/rtd1296-toolchains/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin
 UBOOT_TOOLCHAIN_PATH=/home/sdkuser/rtd1296-toolchains/asdk64-4.9.4-a53-EL-3.10-g2.19-a64nt-160307/bin
+UBOOT_PATH=/home/sdkuser/rtd1296-u-boot
 CON_PATH=$BASE_PATH:$TOOLCHAINS_PATH:$UBOOT_TOOLCHAIN_PATH
 KERNEL_PATH=/home/sdkuser/rtd1296-kernel
 ROOTFS_PATH=/home/sdkuser/rtl1296-rootfs/rootfs
@@ -18,21 +19,22 @@ function init()
     	fi
     	cd $BSP_PATH
     	if [ ! -d rtd1296-toolchains ]; then
-            echo yes
             git clone git@gitee.com:styt_1/rtd1296-toolchains.git
     	else
-            echo no
             cd toolchains && git pull origin
     	fi
 	cd $BSP_PATH
 	if [ ! -d rtl1296-rootfs ]; then
-            echo yes
             git clone git@gitee.com:styt_1/rtl1296-rootfs.git
     	else
-            echo no
             cd rtl1296-rootfs && git pull origin
     	fi
     	cd $BSP_PATH
+	if [ ! -d rtd1296-u-boot ]; then
+            git clone git@gitee.com:styt_1/rtd1296-u-boot.git
+        else
+            cd rtd1296-u-boot && git pull origin
+        fi
     	sudo docker build --tag zang_1296:16.04 .
 }
 
@@ -85,12 +87,29 @@ function modules_install()
                 make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 INSTALL_MOD_PATH=$ROOTFS_PATH modules_install -j$((PROCESSOR*2))"
 }
 
+function make_uboot()
+{
+	sudo docker run -it --rm --user sdkuser -v $BSP_PATH:/home/sdkuser \
+                -e PATH=$CON_PATH \
+                zang_1296:16.04 bash -c "cd $UBOOT_PATH && \
+		./build.sh RTD129x_emmc"
+	if [ ! -d out/uboot ];then
+		mkdir -p out/uboot
+	else
+		rm -rf out/uboot/*
+	fi
+	cp -rf rtd1296-u-boot/DVRBOOT_OUT/RTD129x_emmc out/uboot
+}
+
 case "$1" in
   "init")
 	  init
     ;;
   "kernel")
 	  make_kernel
+    ;;
+  "uboot")
+	  make_uboot
     ;;
   "kernel_menuconfig")
   	  kernel_menuconfig	
