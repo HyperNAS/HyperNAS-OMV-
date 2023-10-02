@@ -6,6 +6,7 @@ TOOLCHAINS_PATH=/home/sdkuser/rtd1296-toolchains/gcc-linaro-7.3.1-2018.05-x86_64
 UBOOT_TOOLCHAIN_PATH=/home/sdkuser/rtd1296-toolchains/asdk64-4.9.4-a53-EL-3.10-g2.19-a64nt-160307/bin
 CON_PATH=$BASE_PATH:$TOOLCHAINS_PATH:$UBOOT_TOOLCHAIN_PATH
 KERNEL_PATH=/home/sdkuser/rtd1296-kernel
+ROOTFS_PATH=/home/sdkuser/rtl1296-rootfs/rootfs
 PROCESSOR=`cat /proc/cpuinfo | grep processor | wc -l`
 
 function init()
@@ -22,6 +23,14 @@ function init()
     	else
             echo no
             cd toolchains && git pull origin
+    	fi
+	cd $BSP_PATH
+	if [ ! -d rtl1296-rootfs ]; then
+            echo yes
+            git clone git@gitee.com:styt_1/rtl1296-rootfs.git
+    	else
+            echo no
+            cd rtl1296-rootfs && git pull origin
     	fi
     	cd $BSP_PATH
     	sudo docker build --tag zang_1296:16.04 .
@@ -53,6 +62,29 @@ function kernel_menuconfig()
 	cp rtd1296-kernel/.config rtd1296-kernel/arch/arm64/configs
 }
 
+function clean()
+{
+	sudo docker run -it --rm --user sdkuser -v $BSP_PATH:/home/sdkuser \
+                -e PATH=$CON_PATH \
+                zang_1296:16.04 bash -c "cd $KERNEL_PATH && \
+                make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 clean -j$((PROCESSOR*2))"
+}
+
+function ubuntu()
+{
+	cd rtl1296-rootfs
+	sudo ./build_ubuntu_rootfs.sh
+	cd -
+}
+
+function modules_install()
+{
+	sudo docker run -it --rm --user root -v $BSP_PATH:/home/sdkuser \
+                -e PATH=$CON_PATH \
+                zang_1296:16.04 bash -c "cd $KERNEL_PATH && \
+                make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 INSTALL_MOD_PATH=$ROOTFS_PATH modules_install -j$((PROCESSOR*2))"
+}
+
 case "$1" in
   "init")
 	  init
@@ -62,6 +94,16 @@ case "$1" in
     ;;
   "kernel_menuconfig")
   	  kernel_menuconfig	
+    ;;
+  "clean")
+	  clean
+    ;;
+  "ubuntu")
+	  ubuntu
+	  modules_install
+    ;;
+  "modules_install")
+  	modules_install
     ;;
   *)
     echo "未知选项: $1"
