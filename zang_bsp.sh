@@ -21,7 +21,7 @@ function init()
     	if [ ! -d rtd1296-toolchains ]; then
             git clone git@gitee.com:styt_1/rtd1296-toolchains.git
     	else
-            cd toolchains && git pull origin
+            cd rtd1296-toolchains && git pull origin
     	fi
 	cd $BSP_PATH
 	if [ ! -d rtl1296-rootfs ]; then
