@@ -14,7 +14,7 @@ PROCESSOR=`cat /proc/cpuinfo | grep processor | wc -l`
 
 function init()
 {
-    	sudo docker build --tag zang_1296:16.04 $BASE_PATH
+    	sudo docker build --tag zang_1296:16.04 $BSP_PATH
 	if [ ! -d rtd1296-kernel ];then
             git clone git@gitee.com:styt_1/rtd1296-kernel.git
     	else
