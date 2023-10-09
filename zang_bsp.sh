@@ -5,6 +5,8 @@ BASE_PATH=$PATH
 TOOLCHAINS_PATH=/home/sdkuser/rtd1296-toolchains/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin
 UBOOT_TOOLCHAIN_PATH=/home/sdkuser/rtd1296-toolchains/asdk64-4.9.4-a53-EL-3.10-g2.19-a64nt-160307/bin
 UBOOT_PATH=/home/sdkuser/rtd1296-u-boot
+IMAGE_BUILDER_PATH=/home/sdkuser/image-builder
+FEED_PATH=$IMAGE_BUILDER_PATH/feed
 CON_PATH=$BASE_PATH:$TOOLCHAINS_PATH:$UBOOT_TOOLCHAIN_PATH
 KERNEL_PATH=/home/sdkuser/rtd1296-kernel
 ROOTFS_PATH=/home/sdkuser/rtl1296-rootfs/rootfs
@@ -12,6 +14,7 @@ PROCESSOR=`cat /proc/cpuinfo | grep processor | wc -l`
 
 function init()
 {
+    	sudo docker build --tag zang_1296:16.04 $BASE_PATH
 	if [ ! -d rtd1296-kernel ];then
             git clone git@gitee.com:styt_1/rtd1296-kernel.git
     	else
@@ -35,7 +38,12 @@ function init()
         else
             cd rtd1296-u-boot && git pull origin
         fi
-    	sudo docker build --tag zang_1296:16.04 .
+	cd $BSP_PATH
+	if [ ! -d image-builder ]; then
+            git clone git@gitee.com:styt_1/image-builder.git
+        else
+            cd image-builder && git pull origin
+        fi
 }
 
 function make_kernel()
@@ -101,6 +109,20 @@ function make_uboot()
 	cp -rf rtd1296-u-boot/DVRBOOT_OUT/RTD129x_emmc out/uboot
 }
 
+function pack_img()
+{
+	sudo docker run -it --rm --user sdkuser -v $BSP_PATH:/home/sdkuser \
+                -e PATH=$CON_PATH \
+                zang_1296:16.04 bash -c "cd $IMAGE_BUILDER_PATH && ls &&\
+                ./build_image.sh $FEED_PATH rtd129x_emmc"
+	if [ ! -d out/ ];then
+		mkdir -p out/
+	else
+		rm -rf out/install.img
+	fi
+	cp image-builder/install.img out/
+}
+
 case "$1" in
   "init")
 	  init
@@ -123,6 +145,9 @@ case "$1" in
     ;;
   "modules_install")
   	modules_install
+    ;;
+  "pack_img")
+       pack_img
     ;;
   *)
     echo "未知选项: $1"
