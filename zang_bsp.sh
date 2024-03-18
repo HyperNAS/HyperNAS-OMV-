@@ -123,6 +123,18 @@ function pack_img()
 	cp image-builder/install.img out/
 }
 
+function make_debian()
+{
+        cd rtl1296-rootfs
+        git checkout debian
+        sudo ./build_debian_rootfs.sh rootfs
+        cd -
+	modules_install
+	cd rtl1296-rootfs
+	sudo ./build_debian_rootfs.sh pack
+	cd -
+}
+
 case "$1" in
   "init")
 	  init
@@ -148,6 +160,10 @@ case "$1" in
     ;;
   "pack_img")
        pack_img
+    ;;
+  "debian")
+       make_kernel
+       make_debian
     ;;
   *)
     echo "未知选项: $1"
