@@ -130,6 +130,7 @@ function make_debian()
         sudo ./build_debian_rootfs.sh rootfs
         cd -
 	modules_install
+	sync
 	cd rtl1296-rootfs
 	sudo ./build_debian_rootfs.sh pack
 	cd -
@@ -164,6 +165,11 @@ case "$1" in
   "debian")
        make_kernel
        make_debian
+       cp out/kernel/Image image-builder/feed/Image
+       cp out/kernel/rtd-1296-mmnas-saola-2GB.dtb image-builder/feed/normal.dtb
+       cp rtl1296-rootfs/rootfs.img image-builder/feed/debian.img
+       sync
+       pack_img
     ;;
   *)
     echo "未知选项: $1"
