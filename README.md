@@ -1,6 +1,3 @@
-## 奘NAS-1296 BSP项目
+## HyperNAS-OMV-底座
 
-### 使用方法
-
-**1.初始化**: ./zang_bsp.sh init
-# HyperNAS-OMV-
+获取链接：https://web.yongnas.com
