@@ -1,6 +1,6 @@
 ## HyperNAS-OMV-底座
 
-获取链接：https://web.yongnas.com
+私信作者获取源码2835994692@qq.com
 
 官网链接：https://www.yongnas.com
 
